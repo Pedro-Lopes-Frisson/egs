@@ -38,7 +38,8 @@ docker run -d --name kong-gateway \
   kong/kong-gateway:3.2.1.0
 
 
-docker run -it --network kong-net -p 6379:6379 --name redis_db -d redis || docker start redis_db
-
-
 docker-compose  -f ./authservice/docker-compose.yml up -d
+
+docker run -e "FLASK_APP=server" -e "FLASK_ENV=production" -e "FLASK_DEBUG=False" --network kong-net --hostname=prods1 --name produtos-kong-net produtos:latest
+
+docker run -e "FLASK_APP=server" -e "FLASK_ENV=production" --network kong-net --hostname entities --name entities-kong1 entities:latest

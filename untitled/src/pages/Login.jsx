@@ -30,11 +30,11 @@ export function Login() {
                 console.log("There probably is a problem with the data body");
             } else
                 console.log(error.response.data)
-        }).then(function (data) {
-            if (data.status === 200) {
-                localStorage.setItem("user", data.data);
-                localStorage.setItem("refresh_token", data.data.refresh_token);
-                localStorage.setItem("token", data.data.token);
+        }).then(function (resp) {
+            if (resp.status === 200) {
+                localStorage.setItem("user", JSON.stringify(resp.data));
+                localStorage.setItem("refresh_token", resp.data.refresh_token);
+                localStorage.setItem("token", resp.data.token);
             }
             window.location = '/';
         });

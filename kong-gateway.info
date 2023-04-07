@@ -1,0 +1,210 @@
+# routes do kong gateway
+{
+  "data": [
+    {
+      "id": "82da3842-8931-4880-a39f-4d8d9f4e6880",
+      "snis": null,
+      "paths": [
+        "/products"
+      ],
+      "sources": null,
+      "destinations": null,
+      "strip_path": true,
+      "request_buffering": true,
+      "response_buffering": true,
+      "protocols": [
+        "http"
+      ],
+      "https_redirect_status_code": 426,
+      "created_at": 1679953847,
+      "hosts": null,
+      "updated_at": 1680035940,
+      "name": "gitProdutosRouteToBegin",
+      "service": {
+        "id": "edce2048-12f9-408f-867e-9aeacba9810a"
+      },
+      "tags": [
+        "produtosRoute"
+      ],
+      "methods": [
+        "GET",
+        "POST",
+        "PUT",
+        "OPTIONS"
+      ],
+      "path_handling": "v0",
+      "regex_priority": 0,
+      "preserve_host": false,
+      "headers": null
+    }
+  ],
+  "next": null
+}
+
+#serviços do kong gateway
+{
+  "data": [
+    {
+      "id": "b659b29a-8344-483c-8cbe-a6eb82485f69",
+      "port": 8888,
+      "enabled": true,
+      "write_timeout": 60000,
+      "ca_certificates": null,
+      "connect_timeout": 60000,
+      "tls_verify": null,
+      "tls_verify_depth": null,
+      "protocol": "http",
+      "created_at": 1679953756,
+      "host": "entities",
+      "updated_at": 1680889655,
+      "name": "Entities",
+      "client_certificate": null,
+      "path": "/v1",
+      "retries": 5,
+      "tags": [
+        "entities"
+      ],
+      "read_timeout": 60000
+    },
+    {
+      "id": "edce2048-12f9-408f-867e-9aeacba9810a",
+      "port": 8888,
+      "enabled": true,
+      "write_timeout": 60000,
+      "ca_certificates": null,
+      "connect_timeout": 60000,
+      "tls_verify": null,
+      "tls_verify_depth": null,
+      "protocol": "http",
+      "created_at": 1679953756,
+      "host": "prods1",
+      "updated_at": 1680890084,
+      "name": "gitProdutos",
+      "client_certificate": null,
+      "path": "/v1",
+      "retries": 5,
+      "tags": [
+        "produtos"
+      ],
+      "read_timeout": 60000
+    }
+  ],
+  "next": null
+}
+# consumers para o jwt token validation plugin
+{
+  "data": [
+    {
+      "id": "e0500bff-740c-4e6c-b509-6125cac90c16",
+      "created_at": 1679954924,
+      "username_lower": "kongojwtprodutos",
+      "tags": [
+        "consumer",
+        "produtos",
+        "jwt",
+        "plugin"
+      ],
+      "custom_id": "KongoJWTProdutos",
+      "username": "KongoJWTProdutos",
+      "type": 0
+    }
+  ],
+  "next": null
+}
+# Plugins
+{
+  "data": [
+    {
+      "id": "4dcd9920-abf2-4694-b83a-fa4f692937ec",
+      "created_at": 1679955025,
+      "enabled": true,
+      "config": {
+        "secret_is_base64": false,
+        "run_on_preflight": true,
+        "header_names": [
+          "Authorization"
+        ],
+        "cookie_names": [],
+        "uri_param_names": [
+          "jwt"
+        ],
+        "key_claim_name": "kid",
+        "anonymous": null,
+        "maximum_expiration": 0,
+        "claims_to_verify": [
+          "exp"
+        ]
+      },
+      "consumer": null,
+      "name": "jwt",
+      "service": {
+        "id": "edce2048-12f9-408f-867e-9aeacba9810a"
+      },
+      "route": {
+        "id": "82da3842-8931-4880-a39f-4d8d9f4e6880"
+      },
+      "tags": null,
+      "ordering": null,
+      "instance_name": "gitprods-consumer",
+      "protocols": [
+        "grpc",
+        "grpcs",
+        "http",
+        "https"
+      ]
+    },
+    {
+      "id": "eabc58f1-0be5-4b6a-a5d2-09abab9a547f",
+      "created_at": 1680029117,
+      "enabled": true,
+      "config": {
+        "preflight_continue": false,
+        "origins": [
+          "*",
+          "http://localhost:3000"
+        ],
+        "headers": [
+          "Accept",
+          "Accept-Version",
+          "Content-Length",
+          "Content-MD5",
+          "Content-Type",
+          "Date",
+          "X-Auth-Token",
+          "Authorization"
+        ],
+        "credentials": true,
+        "exposed_headers": [
+          "X-Auth-Token"
+        ],
+        "methods": [
+          "GET",
+          "POST",
+          "OPTIONS",
+          "PUT",
+          "PATCH",
+          "DELETE"
+        ],
+        "max_age": 3600
+      },
+      "consumer": null,
+      "name": "cors",
+      "service": {
+        "id": "edce2048-12f9-408f-867e-9aeacba9810a"
+      },
+      "route": {
+        "id": "82da3842-8931-4880-a39f-4d8d9f4e6880"
+      },
+      "tags": null,
+      "ordering": null,
+      "instance_name": null,
+      "protocols": [
+        "grpc",
+        "grpcs",
+        "http",
+        "https"
+      ]
+    }
+  ],
+  "next": null
+}

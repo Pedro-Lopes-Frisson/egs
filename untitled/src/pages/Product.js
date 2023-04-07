@@ -6,29 +6,7 @@ import axios from "axios";
 export function Product() {
     const {id} = useParams();
     const [newLink, setNewLink] = useState("");
-    const [Products, setProducts] = useState([]);
-
-    let product = {
-        "id": "624debe5-036c-4560-b82c-a0670bf12b3e",
-        "name": "Name of The product",
-        "price": 2.1,
-        "photos": [
-            "https://imgs.search.brave.com/U7BX1Y7QIqPX4K7Bptng2QuSwuoBlOrQGAqo5rXuVV8/rs:fit:1200:1066:1/g:ce/aHR0cHM6Ly80LmJw/LmJsb2dzcG90LmNv/bS8ta3hOWGVTQkRl/QkUvV0t4VGVFX1R5/WkkvQUFBQUFBQUF1/ekEvTUh2NldLVlR3/ODBmRmV6OUplRmdN/Z3lHclBJMWkwQlNn/Q0xjQi9zMTYwMC9m/b29kaWVzZmVlZC5j/b21fb3Jhbmdlcy5q/cGc",
-            "https://imgs.search.brave.com/U7BX1Y7QIqPX4K7Bptng2QuSwuoBlOrQGAqo5rXuVV8/rs:fit:1200:1066:1/g:ce/aHR0cHM6Ly80LmJw/LmJsb2dzcG90LmNv/bS8ta3hOWGVTQkRl/QkUvV0t4VGVFX1R5/WkkvQUFBQUFBQUF1/ekEvTUh2NldLVlR3/ODBmRmV6OUplRmdN/Z3lHclBJMWkwQlNn/Q0xjQi9zMTYwMC9m/b29kaWVzZmVlZC5j/b21fb3Jhbmdlcy5q/cGc",
-            "https://imgs.search.brave.com/U7BX1Y7QIqPX4K7Bptng2QuSwuoBlOrQGAqo5rXuVV8/rs:fit:1200:1066:1/g:ce/aHR0cHM6Ly80LmJw/LmJsb2dzcG90LmNv/bS8ta3hOWGVTQkRl/QkUvV0t4VGVFX1R5/WkkvQUFBQUFBQUF1/ekEvTUh2NldLVlR3/ODBmRmV6OUplRmdN/Z3lHclBJMWkwQlNn/Q0xjQi9zMTYwMC9m/b29kaWVzZmVlZC5j/b21fb3Jhbmdlcy5q/cGc",
-            "https://imgs.search.brave.com/U7BX1Y7QIqPX4K7Bptng2QuSwuoBlOrQGAqo5rXuVV8/rs:fit:1200:1066:1/g:ce/aHR0cHM6Ly80LmJw/LmJsb2dzcG90LmNv/bS8ta3hOWGVTQkRl/QkUvV0t4VGVFX1R5/WkkvQUFBQUFBQUF1/ekEvTUh2NldLVlR3/ODBmRmV6OUplRmdN/Z3lHclBJMWkwQlNn/Q0xjQi9zMTYwMC9m/b29kaWVzZmVlZC5j/b21fb3Jhbmdlcy5q/cGc",
-            "https://imgs.search.brave.com/U7BX1Y7QIqPX4K7Bptng2QuSwuoBlOrQGAqo5rXuVV8/rs:fit:1200:1066:1/g:ce/aHR0cHM6Ly80LmJw/LmJsb2dzcG90LmNv/bS8ta3hOWGVTQkRl/QkUvV0t4VGVFX1R5/WkkvQUFBQUFBQUF1/ekEvTUh2NldLVlR3/ODBmRmV6OUplRmdN/Z3lHclBJMWkwQlNn/Q0xjQi9zMTYwMC9m/b29kaWVzZmVlZC5j/b21fb3Jhbmdlcy5q/cGc",
-            "https://imgs.search.brave.com/U7BX1Y7QIqPX4K7Bptng2QuSwuoBlOrQGAqo5rXuVV8/rs:fit:1200:1066:1/g:ce/aHR0cHM6Ly80LmJw/LmJsb2dzcG90LmNv/bS8ta3hOWGVTQkRl/QkUvV0t4VGVFX1R5/WkkvQUFBQUFBQUF1/ekEvTUh2NldLVlR3/ODBmRmV6OUplRmdN/Z3lHclBJMWkwQlNn/Q0xjQi9zMTYwMC9m/b29kaWVzZmVlZC5j/b21fb3Jhbmdlcy5q/cGc",
-            "https://imgs.search.brave.com/U7BX1Y7QIqPX4K7Bptng2QuSwuoBlOrQGAqo5rXuVV8/rs:fit:1200:1066:1/g:ce/aHR0cHM6Ly80LmJw/LmJsb2dzcG90LmNv/bS8ta3hOWGVTQkRl/QkUvV0t4VGVFX1R5/WkkvQUFBQUFBQUF1/ekEvTUh2NldLVlR3/ODBmRmV6OUplRmdN/Z3lHclBJMWkwQlNn/Q0xjQi9zMTYwMC9m/b29kaWVzZmVlZC5j/b21fb3Jhbmdlcy5q/cGc",
-            "https://imgs.search.brave.com/U7BX1Y7QIqPX4K7Bptng2QuSwuoBlOrQGAqo5rXuVV8/rs:fit:1200:1066:1/g:ce/aHR0cHM6Ly80LmJw/LmJsb2dzcG90LmNv/bS8ta3hOWGVTQkRl/QkUvV0t4VGVFX1R5/WkkvQUFBQUFBQUF1/ekEvTUh2NldLVlR3/ODBmRmV6OUplRmdN/Z3lHclBJMWkwQlNn/Q0xjQi9zMTYwMC9m/b29kaWVzZmVlZC5j/b21fb3Jhbmdlcy5q/cGc",
-            "https://imgs.search.brave.com/U7BX1Y7QIqPX4K7Bptng2QuSwuoBlOrQGAqo5rXuVV8/rs:fit:1200:1066:1/g:ce/aHR0cHM6Ly80LmJw/LmJsb2dzcG90LmNv/bS8ta3hOWGVTQkRl/QkUvV0t4VGVFX1R5/WkkvQUFBQUFBQUF1/ekEvTUh2NldLVlR3/ODBmRmV6OUplRmdN/Z3lHclBJMWkwQlNn/Q0xjQi9zMTYwMC9m/b29kaWVzZmVlZC5j/b21fb3Jhbmdlcy5q/cGc"
-        ],
-        "manufacturer": {
-            "name": "ACME Corporation",
-            "homePage": "https://www.acme-corp.com",
-            "phone": "408-867-5309"
-        }
-    }
+    const [product, setProduct] = useState({})
     const [show, setShow] = useState(false);
 
     const handleClose = () => setShow(false);
@@ -47,14 +25,20 @@ export function Product() {
 
     useEffect(() => {
         console.log("ola")
-        axios.get(`http://localhost:8000/products/products/${id}`, {
+        axios.get(`http://localhost:8000/products/product/${id}`, {
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `${localStorage.getItem('token')}`
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
             }
         }).then(function (resp) {
             if (404 === resp)
                 console.log("Not Found");
+            if (resp.status === 200){
+                setProduct(resp.data)
+                console.table(resp.data)
+                console.table(product)
+            }
+
         }).catch(function (error) {
             if (error.response) {
                 // The request was made and the server responded with a status code
@@ -73,7 +57,7 @@ export function Product() {
             }
             console.log(error.config);
         })
-    },)
+    }, [id])
 
     return (
         <>
@@ -97,7 +81,7 @@ export function Product() {
 
                     <Container>
                         <Row xl={6} sm={2} lg={6} className={"g-4"}>
-                            {product.photos.map((photo, idx) => (
+                            {product.photos && product.photos.map((photo, idx) => (
                                 <Col lg={1} sm={5} md={3} className={"p-2 m-1 overflow-hidden"}>
                                     <Badge bg="light" text="dark" key={idx}>
                                         {photo}

@@ -41,6 +41,13 @@ services:
       - PARSE_DASHBOARD_PARSE_HOST=localhost
     networks:
       - kong-net
+  redis:
+    image: redis
+    ports:
+      - '6379:6379'
+    hostname: redis_db
+    container_name: redis_db
+
 volumes:
   mongodb_data:
     driver: local
