@@ -81,6 +81,8 @@ export function Products() {
     */
 
     const [searchQuery, setSearchQuery] = useState("");
+    const [offset, setOffset] = useState("");
+    const [page, setPage] = useState("");
     const [searchLimit, setSearchLimit] = useState(10);
     const [searchProducts, setProducts] = useState([]);
     const [pagination, setPagination] = useState({});
@@ -99,6 +101,12 @@ export function Products() {
     useEffect(() => {
         console.log("ola")
         axios.get("http://localhost:8000/products/products", {
+            params: {
+                'searchQuery': searchQuery,
+                'limit': searchLimit,
+                'page': page,
+                'offset': offset
+            },
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${localStorage.getItem('token')}`
@@ -133,19 +141,53 @@ export function Products() {
 
     const handleSubmit = (event) => {
         //setSearchQuery(event.currentTarget.)
-        // make request
+        axios.get("http://localhost:8000/products/products", {
+            params: {
+                'searchName': searchQuery,
+                'limit': searchLimit,
+                'page': page,
+                'offset': offset
+            },
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
+            }
+        }).catch(function (error) {
+            if (error.response) {
+                // The request was made and the server responded with a status code
+                // that falls out of the range of 2xx
+                console.log(error.response.data);
+                console.log(error.response.status);
+                console.log(error.response.headers);
+            } else if (error.request) {
+                // The request was made but no response was received
+                // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
+                // http.ClientRequest in node.js
+                console.log(error.request);
+            } else {
+                // Something happened in setting up the request that triggered an Error
+                console.log('Error', error.message);
+            }
+            console.log(error.config);
+        }).then(function (resp) {
+            console.log(resp);
+            if (resp.status === 200) {
+                setProducts(resp.data.products);
+                setPagination(resp.data.pagination)
+            }
+        })
         event.preventDefault();
     };
 
     const handleSelect = (e) => {
         console.log(e.currentTarget.value);
-        setSearchLimit(e.currentTarget.value);
+        setSearchLimit(e.target.value);
 
     }
 
     const updateSearchQuery = (event) => {
-        console.log(event.currentTarget.value);
-        setSearchQuery(event.currentTarget.value);
+        console.log(event.target.value);
+        setSearchQuery(event.target.value);
     }
 
     return (
@@ -174,7 +216,7 @@ export function Products() {
                         </Form>
 
                         <Row xs={1} md={2} lg={4} className="g-4">
-                            {searchProducts.map((p, idx) => (
+                            {searchProducts.length > 0 && searchProducts.map((p, idx) => (
                                 <Col>
                                     <LinkContainer to={`/Products/${p.id}`}>
                                         <Card>
@@ -188,7 +230,7 @@ export function Products() {
                                         </Card>
                                     </LinkContainer>
                                 </Col>
-                            ))}
+                            )) || <Container> There are no Products to show!</Container>}
                         </Row>
                     </Container>
                 </Col>

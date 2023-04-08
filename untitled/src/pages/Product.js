@@ -33,10 +33,8 @@ export function Product() {
         }).then(function (resp) {
             if (404 === resp)
                 console.log("Not Found");
-            if (resp.status === 200){
+            if (resp.status === 200) {
                 setProduct(resp.data)
-                console.table(resp.data)
-                console.table(product)
             }
 
         }).catch(function (error) {
@@ -59,6 +57,29 @@ export function Product() {
         })
     }, [id])
 
+    const updatePrice = (event) => {
+        setProduct({...product, price: event.target.value});
+    }
+    const updateName = (event) => {
+        setProduct({...product, name: event.target.value});
+        console.log(event.target.value)
+    }
+    const UpdateProduct = () => {
+        axios.put(`http://localhost:8000/products/product/${id}`,
+            product,
+            {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem("token")}`
+                }
+            }
+        ).then(function (resp) {
+            if (resp.status === 200)
+                console.log(resp.data)
+        });
+
+    };
+
     return (
         <>
             <Container fluid className={"justify-content-center"}>
@@ -71,12 +92,13 @@ export function Product() {
 
                     <Form.Group className="mb-3" controlId="formName">
                         <Form.Label>Name</Form.Label>
-                        <Form.Control type="text" placeholder="Enter email" value={product.name}/>
+                        <Form.Control type="text" placeholder="Enter email" value={product.name}
+                                      onChange={updateName}/>
                     </Form.Group>
 
                     <Form.Group className="mb-3" controlId="formName">
                         <Form.Label>Price</Form.Label>
-                        <Form.Control type="text" placeholder="Enter email" value={product.price}/>
+                        <Form.Control type="text" value={product.price} onChange={updatePrice}/>
                     </Form.Group>
 
                     <Container>
@@ -95,7 +117,7 @@ export function Product() {
                         </Button>
                     </Container>
 
-                    <Button variant="primary" type="submit">
+                    <Button variant="primary" onClick={UpdateProduct}>
                         Update
                     </Button>
                 </Form>
