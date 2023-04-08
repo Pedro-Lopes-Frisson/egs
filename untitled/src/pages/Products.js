@@ -190,6 +190,20 @@ export function Products() {
         setSearchQuery(event.target.value);
     }
 
+    function addToCart(event) {
+        event.preventDefault()
+        let idList = JSON.parse(localStorage.getItem("cart")) ?? [];
+
+        idList.map((p) => p.id).includes(event.target.dataset["mkId"]) === false ? idList.push({
+            id: event.target.dataset["mkId"],
+            quantity: 1
+        }) : console.log();
+
+        localStorage.setItem("cart", JSON.stringify(idList))
+        window.dispatchEvent(new Event('storage'));
+        console.log(idList)
+    }
+
     return (
         <Container fluid as={"div"} className="vh-100 mt-5">
             <Row className="h-100">
@@ -223,9 +237,12 @@ export function Products() {
                                             <Card.Img variant="top" src={p.photos[0]}/>
                                             <Card.Body>
                                                 <Card.Title>{p.name}</Card.Title>
-                                                <Card.Text>
-                                                    {(p.price * (idx + 1) + "").substring(0, 4)} $
-                                                </Card.Text>
+                                                <Container className={"d-flex"}>
+                                                    <Card.Text>
+                                                        {(p.price * (idx + 1) + "").substring(0, 4)} $
+                                                    </Card.Text>
+                                                    <Button onClick={addToCart} data-mk-id={p.id}> Add to Cart </Button>
+                                                </Container>
                                             </Card.Body>
                                         </Card>
                                     </LinkContainer>

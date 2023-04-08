@@ -5,6 +5,8 @@ import NavDropdown from 'react-bootstrap/NavDropdown';
 import {NavLink} from "react-router-dom";
 import {LinkContainer} from 'react-router-bootstrap';
 import {AuthService} from '../services/authservice'
+import {Badge} from "react-bootstrap";
+import {useEffect, useState} from "react";
 
 export function NavBarTop() {
     const perform_logout = () => {
@@ -16,6 +18,27 @@ export function NavBarTop() {
     const hasUser = () => {
         return localStorage.getItem("token") != null;
     }
+
+    const [cartItems, setCartItems] = useState(0);
+
+    useEffect(() => {
+        // This function will be called whenever the component mounts or
+        // when a value in the dependency array (second argument) changes.
+        const handleLoginStatusChange = (event) => {
+            console.log(event);
+            const itemsInCart = JSON.parse(localStorage.getItem('cart') ?? '[]');
+            setCartItems(itemsInCart);
+        };
+
+        // Add an event listener that calls the above function whenever
+        // the 'storage' event is triggered.
+        window.addEventListener('storage', handleLoginStatusChange);
+
+        // Clean up the event listener when the component unmounts.
+        return () => {
+            window.removeEventListener('storage', handleLoginStatusChange);
+        };
+    }, [])
 
     return (
         <Navbar bg="light" expand="lg">
@@ -41,6 +64,11 @@ export function NavBarTop() {
                                 </LinkContainer>
                                 <Nav.Link onClick={perform_logout}><i className={"bi bi-person-square"}/>Terminar
                                     Sessão</Nav.Link>
+
+                                <LinkContainer to="/Cart">
+                                    <Nav.Link><i className={"bi bi-bag"}/><Badge
+                                        bg="secondary">{JSON.parse(localStorage.getItem("cart") ?? '[]' ).length}</Badge></Nav.Link>
+                                </LinkContainer>
                             </Container>
                         }
                     </Nav>

@@ -9,6 +9,7 @@ import {NotFound} from "./pages/NotFound";
 import {NavBarTop} from "./components/NavbarTop";
 import {Account} from "./pages/Account";
 import {Login} from "./pages/Login";
+import {Cart} from "./pages/Cart";
 
 function App() {
     return (
@@ -22,6 +23,7 @@ function App() {
                 <Route path="/Products/:id" element={<Product/>}></Route>
                 <Route path="/Products/new" element={<NewProduct/>}></Route>
                 <Route path="/Account" element={<Account/>}></Route>
+                <Route path="/Cart" element={<Cart/>}></Route>
                 <Route path="*" element={<NotFound/>}></Route>
             </Routes>
         </>
