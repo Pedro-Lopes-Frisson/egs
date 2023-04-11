@@ -1,0 +1,327 @@
+version: "3.6"
+services:
+  authservice-mongodb-1:
+    command:
+      - "/opt/bitnami/scripts/mongodb/run.sh"
+    container_name: "authservice-mongodb-1"
+    environment:
+      - "MONGODB_USERNAME=bn_parse"
+      - "MONGODB_DATABASE=bitnami_parse"
+      - "MONGODB_PASSWORD=bitnami123"
+      - "ALLOW_EMPTY_PASSWORD=yes"
+      - "PATH=/opt/bitnami/mongodb/bin:/opt/bitnami/common/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+      - "BITNAMI_APP_NAME=mongodb"
+    expose:
+      - "27017/tcp"
+    hostname: "authservice-mongodb-parse"
+    image: "docker.io/bitnami/mongodb:5.0"
+    networks:
+      - "authservice_kong-net"
+    user: "1001"
+    volumes:
+      - "authservice_mongodb_data:/bitnami/mongodb"
+
+  authservice-parse-dashboard-1:
+    command:
+      - "/opt/bitnami/scripts/parse-dashboard/run.sh"
+    container_name: "authservice-parse-dashboard-1"
+    entrypoint:
+      - "/opt/bitnami/scripts/parse-dashboard/entrypoint.sh"
+    environment:
+      - "PARSE_DASHBOARD_PARSE_HOST=localhost"
+      - "PATH=/opt/bitnami/python/bin:/opt/bitnami/node/bin:/opt/bitnami/parse-dashboard/bin:/opt/bitnami/common/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+      - "HOME=/"
+      - "BITNAMI_APP_NAME=parse-dashboard"
+    hostname: "91fd806dfc3e"
+    image: "docker.io/bitnami/parse-dashboard:5"
+    networks:
+      - "authservice_kong-net"
+    ports:
+      - "80:4040/tcp"
+    user: "1001"
+    volumes:
+      - "authservice_parse_dashboard_data:/bitnami"
+
+  gil_psql:
+    container_name: "busy_solomon"
+    hostname: "sales_db"
+
+    entrypoint:
+      - "docker-entrypoint.sh"
+    environment:
+      - "POSTGRES_USER=admin"
+      - "PGDATA=/var/lib/postgresql/data/pgdata"
+      - "POSTGRES_PASSWORD=pass"
+      - "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/lib/postgresql/15/bin"
+      - "GOSU_VERSION=1.16"
+      - "LANG=en_US.utf8"
+      - "PG_MAJOR=15"
+      - "PG_VERSION=15.2-1.pgdg110+1"
+    expose:
+      - "5432/tcp"
+    image: "postgres"
+
+    networks:
+      - "kong-net"
+    volumes:
+      - "sales_data:/var/lib/postgresql/data"
+
+  entities-kong1:
+    container_name: "entities-kong1"
+    environment:
+      - "FLASK_APP=server"
+      - "FLASK_ENV=production"
+      - "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+    hostname: "entities"
+    image: "entities:latest"
+    networks:
+      - "kong-net"
+    working_dir: "/app_cont"
+
+  kong-database:
+    command:
+      - "postgres"
+    container_name: "kong-database"
+    entrypoint:
+      - "docker-entrypoint.sh"
+    environment:
+      - "POSTGRES_USER=kong"
+      - "POSTGRES_DB=kong"
+      - "POSTGRES_PASSWORD=kongpass"
+      - "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/lib/postgresql/13/bin"
+      - "GOSU_VERSION=1.16"
+      - "LANG=en_US.utf8"
+      - "PG_MAJOR=13"
+      - "PG_VERSION=13.10-1.pgdg110+1"
+      - "PGDATA=/var/lib/postgresql/data"
+    hostname: "9bc11a053b60"
+    image: "postgres:13"
+    networks:
+      - "kong-net"
+    ports:
+      - "5432:5432/tcp"
+    volumes:
+      - "kong_db-data:/var/lib/postgresql/data"
+
+  kong-gateway:
+    command:
+      - "kong"
+      - "docker-start"
+    container_name: "kong-gateway"
+    entrypoint:
+      - "/entrypoint.sh"
+    environment:
+      - "KONG_PROXY_ACCESS_LOG=/dev/stdout"
+      - "KONG_ADMIN_GUI_URL=http://localhost:8002"
+      - "KONG_PROXY_ERROR_LOG=/dev/stderr"
+      - "KONG_ADMIN_ERROR_LOG=/dev/stderr"
+      - "KONG_ADMIN_LISTEN=0.0.0.0:8001"
+      - "KONG_DATABASE=postgres"
+      - "KONG_PG_HOST=kong-database"
+      - "KONG_PG_USER=kong"
+      - "KONG_PG_PASSWORD=kongpass"
+      - "KONG_ADMIN_ACCESS_LOG=/dev/stdout"
+      - "KONG_LICENSE_DATA"
+      - "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+      - "KONG_VERSION="
+      - "KONG_PREFIX=/usr/local/kong"
+    hostname: "kong_gateway"
+    image: "kong/kong-gateway:3.2.1.0"
+    networks:
+      - "kong-net"
+    ports:
+      - "8000:8000/tcp"
+      - "8001:8001/tcp"
+      - "8002:8002/tcp"
+      - "8003:8003/tcp"
+      - "8004:8004/tcp"
+      - "8443:8443/tcp"
+      - "8444:8444/tcp"
+      - "8445:8445/tcp"
+    user: "kong"
+
+  parse:
+    command:
+      - "/opt/bitnami/scripts/parse/run.sh"
+    container_name: "parse"
+    entrypoint:
+      - "/opt/bitnami/scripts/parse/entrypoint.sh"
+    environment:
+      - "PARSE_DATABASE_NAME=bitnami_parse"
+      - "PARSE_DATABASE_PASSWORD=bitnami123"
+      - "PARSE_DATABASE_HOST=mongodb"
+      - "PARSE_DATABASE_PORT_NUMBER=27017"
+      - "PARSE_DATABASE_USER=bn_parse"
+      - "PATH=/opt/bitnami/python/bin:/opt/bitnami/node/bin:/opt/bitnami/mongodb/bin:/opt/bitnami/parse/bin:/opt/bitnami/common/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+      - "HOME=/"
+      - "OS_ARCH=amd64"
+      - "OS_FLAVOUR=debian-11"
+      - "OS_NAME=linux"
+      - "APP_VERSION=5.4.2"
+      - "BITNAMI_APP_NAME=parse"
+    hostname: "parse"
+    image: "docker.io/bitnami/parse:5"
+    networks:
+      - "authservice_kong-net"
+    ports:
+      - "1337:1337/tcp"
+    user: "1001"
+    volumes:
+      - "authservice_parse_data:/bitnami/parse"
+  payments:
+    container_name: "payments"
+    environment:
+      - "PATH=/usr/local/openjdk-11/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+      - "JAVA_HOME=/usr/local/openjdk-11"
+      - "LANG=C.UTF-8"
+      - "JAVA_VERSION=11.0.16"
+    hostname: "payments"
+    image: "payments"
+    ipc: "private"
+    logging:
+      driver: "json-file"
+      options: {}
+    networks:
+      - "kong-net"
+    ports:
+      - "8081:8081/tcp"
+
+  produtos-kong-net:
+    command:
+      - "python3"
+      - "app.py"
+    container_name: "produtos-kong-net"
+    environment:
+      - "FLASK_APP=server"
+      - "FLASK_ENV=production"
+      - "FLASK_DEBUG=False"
+      - "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+    hostname: "prods1"
+    image: "produtos:latest"
+    ipc: "private"
+    logging:
+      driver: "json-file"
+      options: {}
+    networks:
+      - "kong-net"
+    working_dir: "/app_cont"
+
+  redis_db:
+    command:
+      - "redis-server"
+    container_name: "redis_db"
+    environment:
+      - "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+      - "GOSU_VERSION=1.16"
+      - "REDIS_VERSION=7.0.10"
+      - "REDIS_DOWNLOAD_URL=http://download.redis.io/releases/redis-7.0.10.tar.gz"
+      - "REDIS_DOWNLOAD_SHA=1dee4c6487341cae7bd6432ff7590906522215a061fdef87c7d040a0cb600131"
+    hostname: "26aa0a684311"
+    image: "redis"
+    ipc: "private"
+    logging:
+      driver: "json-file"
+      options: {}
+    networks:
+      - "authservice_default"
+    ports:
+      - "6379:6379/tcp"
+    stdin_open: true
+    tty: true
+    volumes:
+      - "redis_data:/data"
+    working_dir: "/data"
+
+  sales:
+    container_name: "sales"
+    hostname: "sales"
+    environment:
+      - "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+      - "SECRET_KEY=your_secret_key_here"
+      - "DEBUG=True"
+      - "PAYMENTS_API_URL=http://payments:8081/payments"
+      - "PRODUCTS_API_URL=http://prods1:8888/products/product"
+      - "DATABASE_HOST=db_sales:5432"
+    image: "sales"
+    networks:
+      - "kong-net"
+    ports:
+      - "4000:8000/tcp"
+    working_dir: "/app_cont"
+
+networks:
+  authservice_default:
+    driver: "bridge"
+    enable_ipv6: false
+    internal: false
+    ipam:
+      config:
+        - gateway: "172.20.0.1"
+          subnet: "172.20.0.0/16"
+      driver: "default"
+    name: "authservice_default"
+
+  authservice_kong-net:
+    driver: "bridge"
+    enable_ipv6: false
+    internal: false
+    ipam:
+      config:
+        - gateway: "172.19.0.1"
+          subnet: "172.19.0.0/16"
+      driver: "default"
+    name: "authservice_kong-net"
+
+  bridge:
+    driver: "bridge"
+    enable_ipv6: false
+    internal: false
+    ipam:
+      config:
+        - gateway: "172.17.0.1"
+          subnet: "172.17.0.0/16"
+      driver: "default"
+    name: "bridge"
+
+  host:
+    driver: "host"
+    enable_ipv6: false
+    internal: false
+    ipam:
+      config: []
+      driver: "default"
+    name: "host"
+
+  kong-net:
+    driver: "bridge"
+    enable_ipv6: false
+    internal: false
+    ipam:
+      config:
+        - gateway: "172.18.0.1"
+          subnet: "172.18.0.0/16"
+      driver: "default"
+    name: "kong-net"
+
+  none:
+    driver: "null"
+    enable_ipv6: false
+    internal: false
+    ipam:
+      config: []
+      driver: "default"
+    name: "none"
+
+volumes:
+  redis_data:
+    external: true
+  authservice_mongodb_data:
+    external: true
+  authservice_parse_dashboard_data:
+    external: true
+  authservice_parse_data:
+    external: true
+  kong-database:
+    external: true
+  sales_data:
+    external: true

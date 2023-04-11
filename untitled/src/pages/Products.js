@@ -3,83 +3,12 @@ import {Button, Card, CardGroup, Col, Form, Row} from "react-bootstrap";
 import {LinkContainer} from "react-router-bootstrap";
 import React, {useEffect, useState} from "react";
 import axios from "axios";
+import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import {library} from '@fortawesome/fontawesome-svg-core'
+import {faS} from "@fortawesome/free-solid-svg-icons";
+import {faCartPlus} from "@fortawesome/free-solid-svg-icons";
 
 export function Products() {
-    /*const produtos = {
-      "searchQuery": "",
-      "page": 0,
-      "offset": 0,
-      "count": 20,
-      "products": [
-        {
-          "id": "624debe5-036c-4560-b82c-a0670bf12b3e",
-          "name": "Name of The product 1",
-          "price": 2.1,
-          "photos": [
-            "https://imgs.search.brave.com/U7BX1Y7QIqPX4K7Bptng2QuSwuoBlOrQGAqo5rXuVV8/rs:fit:1200:1066:1/g:ce/aHR0cHM6Ly80LmJw/LmJsb2dzcG90LmNv/bS8ta3hOWGVTQkRl/QkUvV0t4VGVFX1R5/WkkvQUFBQUFBQUF1/ekEvTUh2NldLVlR3/ODBmRmV6OUplRmdN/Z3lHclBJMWkwQlNn/Q0xjQi9zMTYwMC9m/b29kaWVzZmVlZC5j/b21fb3Jhbmdlcy5q/cGc"
-          ],
-          "manufacturer": {
-            "name": "ACME Corporation",
-            "homePage": "https://www.acme-corp.com",
-            "phone": "408-867-5309"
-          }
-        },
-        {
-          "id": "624debe5-036c-4560-b82c-a0670bf12b3e",
-          "name": "Name of The product 2",
-          "price": 2.1,
-          "photos": [
-            "https://imgs.search.brave.com/U7BX1Y7QIqPX4K7Bptng2QuSwuoBlOrQGAqo5rXuVV8/rs:fit:1200:1066:1/g:ce/aHR0cHM6Ly80LmJw/LmJsb2dzcG90LmNv/bS8ta3hOWGVTQkRl/QkUvV0t4VGVFX1R5/WkkvQUFBQUFBQUF1/ekEvTUh2NldLVlR3/ODBmRmV6OUplRmdN/Z3lHclBJMWkwQlNn/Q0xjQi9zMTYwMC9m/b29kaWVzZmVlZC5j/b21fb3Jhbmdlcy5q/cGc"
-          ],
-          "manufacturer": {
-            "name": "ACME Corporation",
-            "homePage": "https://www.acme-corp.com",
-            "phone": "408-867-5309"
-          }
-        },
-        {
-          "id": "624debe5-036c-4560-b82c-a0670bf12b3e",
-          "name": "Name of The product 3",
-          "price": 2.1,
-          "photos": [
-            "https://imgs.search.brave.com/U7BX1Y7QIqPX4K7Bptng2QuSwuoBlOrQGAqo5rXuVV8/rs:fit:1200:1066:1/g:ce/aHR0cHM6Ly80LmJw/LmJsb2dzcG90LmNv/bS8ta3hOWGVTQkRl/QkUvV0t4VGVFX1R5/WkkvQUFBQUFBQUF1/ekEvTUh2NldLVlR3/ODBmRmV6OUplRmdN/Z3lHclBJMWkwQlNn/Q0xjQi9zMTYwMC9m/b29kaWVzZmVlZC5j/b21fb3Jhbmdlcy5q/cGc"
-          ],
-          "manufacturer": {
-            "name": "ACME Corporation",
-            "homePage": "https://www.acme-corp.com",
-            "phone": "408-867-5309"
-          }
-        },
-        {
-          "id": "624debe5-036c-4560-b82c-a0670bf12b3e",
-          "name": "Name of The product 4",
-          "price": 2.1,
-          "photos": [
-            "https://imgs.search.brave.com/U7BX1Y7QIqPX4K7Bptng2QuSwuoBlOrQGAqo5rXuVV8/rs:fit:1200:1066:1/g:ce/aHR0cHM6Ly80LmJw/LmJsb2dzcG90LmNv/bS8ta3hOWGVTQkRl/QkUvV0t4VGVFX1R5/WkkvQUFBQUFBQUF1/ekEvTUh2NldLVlR3/ODBmRmV6OUplRmdN/Z3lHclBJMWkwQlNn/Q0xjQi9zMTYwMC9m/b29kaWVzZmVlZC5j/b21fb3Jhbmdlcy5q/cGc"
-          ],
-          "manufacturer": {
-            "name": "ACME Corporation",
-            "homePage": "https://www.acme-corp.com",
-            "phone": "408-867-5309"
-          }
-        },
-        {
-          "id": "624debe5-036c-4560-b82c-a0670bf12b3e",
-          "name": "Name of The product",
-          "price": 2.1,
-          "photos": [
-            "https://imgs.search.brave.com/U7BX1Y7QIqPX4K7Bptng2QuSwuoBlOrQGAqo5rXuVV8/rs:fit:1200:1066:1/g:ce/aHR0cHM6Ly80LmJw/LmJsb2dzcG90LmNv/bS8ta3hOWGVTQkRl/QkUvV0t4VGVFX1R5/WkkvQUFBQUFBQUF1/ekEvTUh2NldLVlR3/ODBmRmV6OUplRmdN/Z3lHclBJMWkwQlNn/Q0xjQi9zMTYwMC9m/b29kaWVzZmVlZC5j/b21fb3Jhbmdlcy5q/cGc"
-          ],
-          "manufacturer": {
-            "name": "ACME Corporation",
-            "homePage": "https://www.acme-corp.com",
-            "phone": "408-867-5309"
-          }
-        }
-      ]
-    }
-    */
-
     const [searchQuery, setSearchQuery] = useState("");
     const [offset, setOffset] = useState("");
     const [page, setPage] = useState("");
@@ -100,6 +29,7 @@ export function Products() {
 
     useEffect(() => {
         console.log("ola")
+        library.add(faS,faCartPlus);
         axios.get("http://localhost:8000/products/products", {
             params: {
                 'searchQuery': searchQuery,
@@ -135,6 +65,7 @@ export function Products() {
                 setPagination(resp.data.pagination)
             }
         })
+        return () => {library.reset()}
     }, [])
 
     const [validated, setValidated] = useState(false);
@@ -192,11 +123,13 @@ export function Products() {
 
     function addToCart(event) {
         event.preventDefault()
+        const button = event.target.closest('button');
         let idList = JSON.parse(localStorage.getItem("cart")) ?? [];
 
-        idList.map((p) => p.id).includes(event.target.dataset["mkId"]) === false ? idList.push({
-            id: event.target.dataset["mkId"],
-            quantity: 1
+        idList.map((p) => p.id).includes(button.dataset["mkId"]) === false ? idList.push({
+            id: button.dataset["mkId"],
+            quantity: 1,
+            name: button.dataset["mkName"]
         }) : console.log();
 
         localStorage.setItem("cart", JSON.stringify(idList))
@@ -233,15 +166,15 @@ export function Products() {
                             {searchProducts.length > 0 && searchProducts.map((p, idx) => (
                                 <Col>
                                     <LinkContainer to={`/Products/${p.id}`}>
-                                        <Card>
+                                        <Card className={"h-100 "}>
                                             <Card.Img variant="top" src={p.photos[0]}/>
                                             <Card.Body>
                                                 <Card.Title>{p.name}</Card.Title>
-                                                <Container className={"d-flex"}>
-                                                    <Card.Text>
+                                                <Container className={"d-flex align-items-center justify-content-center m-auto"}>
+                                                    <Card.Text className={"m-auto text-center"}>
                                                         {(p.price * (idx + 1) + "").substring(0, 4)} $
                                                     </Card.Text>
-                                                    <Button onClick={addToCart} data-mk-id={p.id}> Add to Cart </Button>
+                                                    <Button variant={"light"} className={"align-self-end"}  onClick={addToCart}  data-mk-id={p.id} data-mk-name={p.name}><FontAwesomeIcon icon="fas fa-cart-plus" className={"text-primary"} /></Button>
                                                 </Container>
                                             </Card.Body>
                                         </Card>

@@ -24,9 +24,11 @@ export function NavBarTop() {
     useEffect(() => {
         // This function will be called whenever the component mounts or
         // when a value in the dependency array (second argument) changes.
+        const itemsInCart = JSON.parse(localStorage.getItem('cart') ?? '[]').length;
+        setCartItems(itemsInCart);
         const handleLoginStatusChange = (event) => {
             console.log(event);
-            const itemsInCart = JSON.parse(localStorage.getItem('cart') ?? '[]');
+            const itemsInCart = JSON.parse(localStorage.getItem('cart') ?? '[]').length;
             setCartItems(itemsInCart);
         };
 
@@ -67,7 +69,7 @@ export function NavBarTop() {
 
                                 <LinkContainer to="/Cart">
                                     <Nav.Link><i className={"bi bi-bag"}/><Badge
-                                        bg="secondary">{JSON.parse(localStorage.getItem("cart") ?? '[]' ).length}</Badge></Nav.Link>
+                                        bg="secondary">{cartItems}</Badge></Nav.Link>
                                 </LinkContainer>
                             </Container>
                         }
