@@ -19,7 +19,7 @@ services:
       - "authservice_kong-net"
     user: "1001"
     volumes:
-      - "authservice_mongodb_data:/bitnami/mongodb"
+      - "./authservice_mongodb_data:/bitnami/mongodb"
 
   authservice-parse-dashboard-1:
     command:
@@ -40,7 +40,7 @@ services:
       - "80:4040/tcp"
     user: "1001"
     volumes:
-      - "authservice_parse_dashboard_data:/bitnami"
+      - "./authservice_parse_dashboard_data:/bitnami"
 
   gil_psql:
     container_name: "busy_solomon"
@@ -64,7 +64,7 @@ services:
     networks:
       - "kong-net"
     volumes:
-      - "sales_data:/var/lib/postgresql/data"
+      - "./sales_data:/var/lib/postgresql/data"
 
   entities-kong1:
     container_name: "entities-kong1"
@@ -101,7 +101,7 @@ services:
     ports:
       - "5432:5432/tcp"
     volumes:
-      - "kong_db-data:/var/lib/postgresql/data"
+      - "./kong_db-data:/var/lib/postgresql/data"
 
   kong-gateway:
     command:
@@ -167,7 +167,7 @@ services:
       - "1337:1337/tcp"
     user: "1001"
     volumes:
-      - "authservice_parse_data:/bitnami/parse"
+      - "./authservice_parse_data:/bitnami/parse"
   payments:
     container_name: "payments"
     environment:
@@ -229,7 +229,7 @@ services:
     stdin_open: true
     tty: true
     volumes:
-      - "redis_data:/data"
+      - "./redis_data:/data"
     working_dir: "/data"
 
   sales:
@@ -312,16 +312,3 @@ networks:
       driver: "default"
     name: "none"
 
-volumes:
-  redis_data:
-    external: true
-  authservice_mongodb_data:
-    external: true
-  authservice_parse_dashboard_data:
-    external: true
-  authservice_parse_data:
-    external: true
-  kong_db-data:
-    external: true
-  sales_data:
-    external: true
