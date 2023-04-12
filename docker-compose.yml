@@ -321,7 +321,7 @@ volumes:
     external: true
   authservice_parse_data:
     external: true
-  kong-database:
+  kong_db-data:
     external: true
   sales_data:
     external: true
