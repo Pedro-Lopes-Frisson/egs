@@ -11,7 +11,9 @@ import {Account} from "./pages/Account";
 import {Login} from "./pages/Login";
 import {Cart} from "./pages/Cart";
 import {ProductAdmin} from "./pages/ProductAdmin";
+import {Signup} from "./pages/SignUp";
 import Protected from "./components/Protected";
+import axios from "axios";
 
 function App() {
     const navigate = useNavigate();
@@ -21,14 +23,17 @@ function App() {
         render={props => isAuthenticated ? (<Component {...props} />) : (
             <Navigate to="/login" replace={true} state={{from: props.location}}/>)}
     />);
-    const isAdmin = true;
+    const isAdmin = () => {
+        axios.get(`http://localhost:8000/entities/entity/externalId${JSON.parse(localStorage.getItem("user"))["id"]}`)
+
+    };
 
     return (<>
         <NavBarTop/>
         <Routes>
             <Route path="/" element={<Home/>}></Route>
             <Route path="/login" element={<Login/>}></Route>
-            <Route path="/register" element={<Home/>}></Route>
+            <Route path="/register" element={<Signup/>}></Route>
             <Route path="/products" element={<Products/>}></Route>
             <Route path="/products/:id" element={<Product/>}></Route>
             <Route path="/products/new" element={<NewProduct/>}></Route>

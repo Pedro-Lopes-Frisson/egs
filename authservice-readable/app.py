@@ -44,7 +44,7 @@ def login():
         return {"error": "There were required fields which were not provided."}, 400
 
     if provider.upper() == "PARSE":
-        r = requests.post("http://localhost:1337/parse/login", headers={
+        r = requests.post("http://parse:1337/parse/login", headers={
             "X-Parse-Application-Id": "myappID",
             "X-Parse-REST-API-Key": "mymasterKey",
             "X-Parse-Revocable-Session": "1",
@@ -61,6 +61,7 @@ def login():
 
         resp = get_token_and_refresh_token(username, r.json()["objectId"], provider)
         resp["provider"] = provider
+        resp["id"] = r.json()["objectId"]
 
     else:
         return {"error": "Provider not yet implemented"}, 501
@@ -70,36 +71,57 @@ def login():
     return resp, 200
 
 
-@app.route("/api/v1/logout")
+@app.route("/api/v1/logout", methods=["POST"])
 @cross_origin()
 def logout():
-    if not request.headers.has_key("Authorization"):
-        return {}, 200
+    if not request.headers["Authorization"]:
+        return {}, 400
 
     token = request.headers["Authorization"].split("Bearer ")[1]
-    decoded_token = jwt.decode(token, key="OLA", algorithms="HS256")
+    app.logger.info(token)
+    decoded_token = jwt.decode(token,key="NqxwnqXe4GMIW0hmnHTvkOhGbopi6sC7",algorithms="HS256")
+    app.logger.info(decoded_token)
 
     if decoded_token.get("provider") == "parse":
-        sessionToken = redis_client.provider_class.get(decoded_token.get("username"))
-        r = requests.post('http://localhost:1337/parse/logout', headers={
+        sessionToken = redis_client.get(name=decoded_token["username"])
+        r = requests.post('http://parse:1337/parse/logout', headers={
             "X-Parse-Application-Id": "myappID",
             "X-Parse-REST-API-Key": "mymasterKey",
             "X-Parse-Session-Token": sessionToken
         })
 
-        app.logger.info(r.json())
+        app.logger.info(r.text)
 
         if r.status_code != 200:
             return {"Error": "Logout was not possible"}
     else:
         return {"error": "provider not yet implemented"}, 501
 
+    return {}, 200
 
 @app.route("/api/v1/refresh")
 @cross_origin()
 def refresh():
     # check if refresh_token is valid
+    token = request.headers["Authorization"].split("Bearer ")[1]
+    decoded_token = jwt.decode(token,key="NqxwnqXe4GMIW0hmnHTvkOhGbopi6sC7",algorithms="HS256")
+    username = decoded_token["username"]
+
+    r_token = request.json()["refresh_token"]
+    decoded_r_token = jwt.decode(token,key="NqxwnqXe4GMIW0hmnHTvkOhGbopi6sC7",algorithms="HS256")
+    uid = decoded_r_token["uid"]
+    exp = decoded_r_token["exp"]
+
+    if exp <= datetime.datetime.now():
+        return {"message" : "Refresh token Expired"}, 403
+
     # check if sessionToken exists in parse server
+
+    redis_client.get(username)
+    
+
+
+
     # return new token and new refresh token
     pass
 
@@ -131,14 +153,15 @@ def signup():
     print(user)
 
     if provider.upper() == "PARSE":
-        r = requests.post("http://localhost:1337/parse/users", data=json.dumps(user), headers={
+        r = requests.post("http://parse:1337/parse/users", data=json.dumps(user), headers={
             "X-Parse-Application-Id": "myappID",
             "X-Parse-REST-API-Key": "mymasterKey",
             "X-Parse-Revocable-Session": "1",
             "Content-Type": "application/json"
         })
 
-        app.logger.info(r.json())
+        app.logger.info(r.text)
+        print(r.text)
 
         if r.status_code != 201:
             app.logger.error(r.json())
@@ -147,6 +170,7 @@ def signup():
         # build jwt token
         resp = get_token_and_refresh_token(username, r.json()["objectId"], provider)
         resp["provider"] = provider
+        resp["id"] = r.json()["objectId"]
 
     else:
         return {"error": "Provider not yet available"}
@@ -174,4 +198,4 @@ def get_token_and_refresh_token(username, uid, provider):
 
 
 if __name__ == "__main__":
-    app.run()
+    app.run(host='0.0.0.0')

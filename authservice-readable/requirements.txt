@@ -3,3 +3,4 @@ flask-redis
 
 requests~=2.28.2
 PyJWT~=2.6.0
+flask-cors

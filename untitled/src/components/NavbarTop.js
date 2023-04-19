@@ -4,22 +4,29 @@ import Navbar from 'react-bootstrap/Navbar';
 import NavDropdown from 'react-bootstrap/NavDropdown';
 import {NavLink} from "react-router-dom";
 import {LinkContainer} from 'react-router-bootstrap';
-import {AuthService} from '../services/authservice'
+import authservice, {AuthService} from '../services/authservice'
 import {Badge} from "react-bootstrap";
 import {useEffect, useState} from "react";
 
+const AUTH_API = 'http://localhost:5000';
+const ENTITIES_API = 'http://localhost:8000/entities';
+
 export function NavBarTop() {
+    const authservice = new AuthService(AUTH_API,ENTITIES_API );
     const perform_logout = () => {
+
+        authservice.logout();
         localStorage.removeItem("token");
         localStorage.removeItem("refresh_token");
         localStorage.removeItem("user");
-        window.location = "/"
+        window.location = '/login'
     }
     const hasUser = () => {
         return localStorage.getItem("token") != null;
     }
 
     const [cartItems, setCartItems] = useState(0);
+    const [username, setUsername] = useState("");
 
     useEffect(() => {
         // This function will be called whenever the component mounts or
@@ -29,7 +36,9 @@ export function NavBarTop() {
         const handleLoginStatusChange = (event) => {
             console.log(event);
             const itemsInCart = JSON.parse(localStorage.getItem('cart') ?? '[]').length;
+            const username = localStorage.getItem("username") ?? "Username Placeholder";
             setCartItems(itemsInCart);
+            setUsername(username);
         };
 
         // Add an event listener that calls the above function whenever
@@ -57,12 +66,16 @@ export function NavBarTop() {
                                 <LinkContainer to="/Login">
                                     <Nav.Link>Login</Nav.Link>
                                 </LinkContainer>
+
+                                <LinkContainer to="/register">
+                                    <Nav.Link>Register</Nav.Link>
+                                </LinkContainer>
                             </Container>
                         }
                         {hasUser() &&
                             <Container className={"d-inline-flex justify-content-end"}>
                                 <LinkContainer to="/Account">
-                                    <Nav.Link><i className={"bi bi-person-square"}/>Pedro Lopes</Nav.Link>
+                                    <Nav.Link><i className={"bi bi-person-square"}/>{ username }</Nav.Link>
                                 </LinkContainer>
                                 <Nav.Link onClick={perform_logout}><i className={"bi bi-person-square"}/>Terminar
                                     Sessão</Nav.Link>

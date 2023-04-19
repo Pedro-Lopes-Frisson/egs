@@ -42,6 +42,8 @@ export function Products() {
                 'Authorization': `Bearer ${localStorage.getItem('token')}`
             }
         }).catch(function (error) {
+            if(error.response.status == 401)
+                window.alert("Login")
             if (error.response) {
                 // The request was made and the server responded with a status code
                 // that falls out of the range of 2xx
@@ -58,6 +60,7 @@ export function Products() {
                 console.log('Error', error.message);
             }
             console.log(error.config);
+            return;
         }).then(function (resp) {
             console.log(resp);
             if (resp.status === 200) {
@@ -84,6 +87,10 @@ export function Products() {
                 'Authorization': `Bearer ${localStorage.getItem('token')}`
             }
         }).catch(function (error) {
+            if (error.status === 401){
+                window.alert("invalid Token");
+                return;
+            }
             if (error.response) {
                 // The request was made and the server responded with a status code
                 // that falls out of the range of 2xx
@@ -99,9 +106,9 @@ export function Products() {
                 // Something happened in setting up the request that triggered an Error
                 console.log('Error', error.message);
             }
+            return;
             console.log(error.config);
         }).then(function (resp) {
-            console.log(resp);
             if (resp.status === 200) {
                 setProducts(resp.data.products);
                 setPagination(resp.data.pagination)
@@ -129,7 +136,8 @@ export function Products() {
         idList.map((p) => p.id).includes(button.dataset["mkId"]) === false ? idList.push({
             id: button.dataset["mkId"],
             quantity: 1,
-            name: button.dataset["mkName"]
+            name: button.dataset["mkName"],
+            price: button.dataset["mkPrice"]
         }) : console.log();
 
         localStorage.setItem("cart", JSON.stringify(idList))
@@ -174,7 +182,7 @@ export function Products() {
                                                     <Card.Text className={"m-auto text-center"}>
                                                         {(p.price * (idx + 1) + "").substring(0, 4)} $
                                                     </Card.Text>
-                                                    <Button variant={"light"} className={"align-self-end"}  onClick={addToCart}  data-mk-id={p.id} data-mk-name={p.name}><FontAwesomeIcon icon="fas fa-cart-plus" className={"text-primary"} /></Button>
+                                                    <Button variant={"light"} className={"align-self-end"}  onClick={addToCart} data-mk-price={p.price}  data-mk-id={p.id} data-mk-name={p.name}><FontAwesomeIcon icon="fas fa-cart-plus" className={"text-primary"} /></Button>
                                                 </Container>
                                             </Card.Body>
                                         </Card>

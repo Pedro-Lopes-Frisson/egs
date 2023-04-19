@@ -1,6 +1,6 @@
 version: "3.6"
 services:
-  authservice-mongodb-1:
+  mongodb-parse:
     command:
       - "/opt/bitnami/scripts/mongodb/run.sh"
     container_name: "authservice-mongodb-1"
@@ -13,39 +13,38 @@ services:
       - "BITNAMI_APP_NAME=mongodb"
     expose:
       - "27017/tcp"
-    hostname: "authservice-mongodb-parse"
+    hostname: "mongodb"
     image: "docker.io/bitnami/mongodb:5.0"
     networks:
-      - "authservice_kong-net"
+      - "kong-net"
     user: "1001"
     volumes:
-      - "./authservice_mongodb_data:/bitnami/mongodb"
+      - authservice_mongodb_data:/bitnami/mongodb
 
-  authservice-parse-dashboard-1:
+  parse-dashboard:
     command:
       - "/opt/bitnami/scripts/parse-dashboard/run.sh"
     container_name: "authservice-parse-dashboard-1"
     entrypoint:
       - "/opt/bitnami/scripts/parse-dashboard/entrypoint.sh"
     environment:
-      - "PARSE_DASHBOARD_PARSE_HOST=localhost"
+      - "PARSE_DASHBOARD_PARSE_HOST=parse"
       - "PATH=/opt/bitnami/python/bin:/opt/bitnami/node/bin:/opt/bitnami/parse-dashboard/bin:/opt/bitnami/common/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
       - "HOME=/"
       - "BITNAMI_APP_NAME=parse-dashboard"
     hostname: "91fd806dfc3e"
     image: "docker.io/bitnami/parse-dashboard:5"
     networks:
-      - "authservice_kong-net"
+      - "kong-net"
     ports:
       - "80:4040/tcp"
     user: "1001"
     volumes:
-      - "./authservice_parse_dashboard_data:/bitnami"
+      - './authservice_parse_dashboard_data:/bitnami'
 
   gil_psql:
     container_name: "busy_solomon"
     hostname: "sales_db"
-
     entrypoint:
       - "docker-entrypoint.sh"
     environment:
@@ -64,7 +63,7 @@ services:
     networks:
       - "kong-net"
     volumes:
-      - "./sales_data:/var/lib/postgresql/data"
+      - sales_data:/var/lib/postgresql/data
 
   entities-kong1:
     container_name: "entities-kong1"
@@ -73,10 +72,13 @@ services:
       - "FLASK_ENV=production"
       - "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
     hostname: "entities"
-    image: "entities:latest"
+    image: "pedrolopes123/entities"
     networks:
       - "kong-net"
     working_dir: "/app_cont"
+    volumes:
+      - entities_db_sqlite:/app_cont/entities.db
+
 
   kong-database:
     command:
@@ -97,11 +99,11 @@ services:
     hostname: "9bc11a053b60"
     image: "postgres:13"
     networks:
-      - "kong-net"
+      - 'kong-net'
     ports:
-      - "5432:5432/tcp"
+      - "5433:5432/tcp"
     volumes:
-      - "./kong_db-data:/var/lib/postgresql/data"
+      - kong-database-data:/var/lib/postgresql/data
 
   kong-gateway:
     command:
@@ -144,6 +146,7 @@ services:
     command:
       - "/opt/bitnami/scripts/parse/run.sh"
     container_name: "parse"
+    hostname: "parse"
     entrypoint:
       - "/opt/bitnami/scripts/parse/entrypoint.sh"
     environment:
@@ -159,10 +162,9 @@ services:
       - "OS_NAME=linux"
       - "APP_VERSION=5.4.2"
       - "BITNAMI_APP_NAME=parse"
-    hostname: "parse"
     image: "docker.io/bitnami/parse:5"
     networks:
-      - "authservice_kong-net"
+      - "kong-net"
     ports:
       - "1337:1337/tcp"
     user: "1001"
@@ -176,7 +178,7 @@ services:
       - "LANG=C.UTF-8"
       - "JAVA_VERSION=11.0.16"
     hostname: "payments"
-    image: "payments"
+    image: "pedrolopes123/payments"
     ipc: "private"
     logging:
       driver: "json-file"
@@ -197,7 +199,7 @@ services:
       - "FLASK_DEBUG=False"
       - "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
     hostname: "prods1"
-    image: "produtos:latest"
+    image: "pedrolopes123/produtos"
     ipc: "private"
     logging:
       driver: "json-file"
@@ -205,6 +207,8 @@ services:
     networks:
       - "kong-net"
     working_dir: "/app_cont"
+    volumes:
+      - produtos_db_sqlite:/app_cont/products.db
 
   redis_db:
     command:
@@ -216,20 +220,20 @@ services:
       - "REDIS_VERSION=7.0.10"
       - "REDIS_DOWNLOAD_URL=http://download.redis.io/releases/redis-7.0.10.tar.gz"
       - "REDIS_DOWNLOAD_SHA=1dee4c6487341cae7bd6432ff7590906522215a061fdef87c7d040a0cb600131"
-    hostname: "26aa0a684311"
+    hostname: "redis_db"
     image: "redis"
     ipc: "private"
     logging:
       driver: "json-file"
       options: {}
     networks:
-      - "authservice_default"
+      - "kong-net"
     ports:
       - "6379:6379/tcp"
     stdin_open: true
     tty: true
     volumes:
-      - "./redis_data:/data"
+      - redis_authservice:/data
     working_dir: "/data"
 
   sales:
@@ -242,7 +246,7 @@ services:
       - "PAYMENTS_API_URL=http://payments:8081/payments"
       - "PRODUCTS_API_URL=http://prods1:8888/products/product"
       - "DATABASE_HOST=db_sales:5432"
-    image: "sales"
+    image: "pedrolopes123/sales"
     networks:
       - "kong-net"
     ports:
@@ -250,65 +254,28 @@ services:
     working_dir: "/app_cont"
 
 networks:
-  authservice_default:
-    driver: "bridge"
-    enable_ipv6: false
-    internal: false
-    ipam:
-      config:
-        - gateway: "172.20.0.1"
-          subnet: "172.20.0.0/16"
-      driver: "default"
-    name: "authservice_default"
-
-  authservice_kong-net:
-    driver: "bridge"
-    enable_ipv6: false
-    internal: false
-    ipam:
-      config:
-        - gateway: "172.19.0.1"
-          subnet: "172.19.0.0/16"
-      driver: "default"
-    name: "authservice_kong-net"
-
-  bridge:
-    driver: "bridge"
-    enable_ipv6: false
-    internal: false
-    ipam:
-      config:
-        - gateway: "172.17.0.1"
-          subnet: "172.17.0.0/16"
-      driver: "default"
-    name: "bridge"
-
-  host:
-    driver: "host"
-    enable_ipv6: false
-    internal: false
-    ipam:
-      config: []
-      driver: "default"
-    name: "host"
-
   kong-net:
     driver: "bridge"
     enable_ipv6: false
     internal: false
-    ipam:
-      config:
-        - gateway: "172.18.0.1"
-          subnet: "172.18.0.0/16"
-      driver: "default"
     name: "kong-net"
 
-  none:
-    driver: "null"
-    enable_ipv6: false
-    internal: false
-    ipam:
-      config: []
-      driver: "default"
-    name: "none"
+volumes:
+  kong-database-data:
+    name: kong-database-data
+
+  authservice_mongodb_data:
+    name: authservice_mongodb_data
+
+  sales_data:
+    name: authservice_mongodb_data
+
+  redis_authservice:
+    name: redis_authservice
+
+  produtos_db_sqlite:
+    name: produtos_db_sqlite
+
+  entities_db_sqlite:
+    name: entities_db_sqlite
 
