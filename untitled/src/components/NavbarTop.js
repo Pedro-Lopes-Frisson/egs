@@ -26,7 +26,7 @@ export function NavBarTop() {
     }
 
     const [cartItems, setCartItems] = useState(0);
-    const [username, setUsername] = useState("");
+    const [username1, setUsername] = useState("");
 
     useEffect(() => {
         // This function will be called whenever the component mounts or
@@ -54,7 +54,7 @@ export function NavBarTop() {
     return (
         <Navbar bg="light" expand="lg">
             <Container>
-                <Navbar.Brand href="#home">Mar Ket</Navbar.Brand>
+                <Navbar.Brand href="/">Mar Ket</Navbar.Brand>
                 <Navbar.Toggle aria-controls="basic-navbar-nav"/>
                 <Navbar.Collapse id="basic-navbar-nav">
                     <Nav className="me-auto">
@@ -75,7 +75,7 @@ export function NavBarTop() {
                         {hasUser() &&
                             <Container className={"d-inline-flex justify-content-end"}>
                                 <LinkContainer to="/Account">
-                                    <Nav.Link><i className={"bi bi-person-square"}/>{ username }</Nav.Link>
+                                    <Nav.Link><i className={"bi bi-person-square"}/>{ username1 }</Nav.Link>
                                 </LinkContainer>
                                 <Nav.Link onClick={perform_logout}><i className={"bi bi-person-square"}/>Terminar
                                     Sessão</Nav.Link>

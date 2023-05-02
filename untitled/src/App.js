@@ -14,6 +14,8 @@ import {ProductAdmin} from "./pages/ProductAdmin";
 import {Signup} from "./pages/SignUp";
 import Protected from "./components/Protected";
 import axios from "axios";
+import {SuccessPage} from "./pages/SuccessPage";
+import {FailedPage} from "./pages/FailedPage";
 
 function App() {
     const navigate = useNavigate();
@@ -39,6 +41,8 @@ function App() {
             <Route path="/products/new" element={<NewProduct/>}></Route>
             <Route path="/account" element={<Account/>}></Route>
             <Route path="/cart" element={<Cart/>}></Route>
+            <Route path="/successPage" element={<SuccessPage/>}></Route>
+            <Route path="/failedPage" element={<FailedPage/>}></Route>
             <Route path={"/productadmin/:id"} element={<Protected isLoggedIn={isAdmin}>
                 <ProductAdmin/>
             </Protected>}>

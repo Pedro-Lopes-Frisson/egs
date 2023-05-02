@@ -83,22 +83,6 @@ export function Product() {
         setProduct({...product, name: event.target.value});
         console.log(event.target.value)
     }
-    const UpdateProduct = () => {
-        setProduct(prevState => prevState.photos.map((photo)=>photo.replaceAll(" ","")))
-        axios.put(`http://localhost:8000/products/product/${id}`,
-            product,
-            {
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem("token")}`
-                }
-            }
-        ).then(function (resp) {
-            if (resp.status === 200)
-                console.log(resp.data)
-        });
-
-    };
 
     const addProduct = (event) => {
         event.stopPropagation();
@@ -165,22 +149,17 @@ export function Product() {
 
                     <Form.Group className="mb-3" controlId="formName">
                         <Form.Label>Quantity</Form.Label>
-                        <Form.Control type="text" value={product.quantity} onChange={updateQuantity}/>
+                        <Form.Control type="text" value={product.quantity} readOnly={true}/>
                     </Form.Group>
 
                     <Form.Group className="mb-3" controlId="formName">
                         <Form.Label>Price</Form.Label>
-                        <Form.Control type="text" value={product.price} onChange={updatePrice}/>
+                        <Form.Control type="text" value={product.price} readOnly={true}/>
                     </Form.Group>
 
                     <Container className={"p-1 m-auto"}>
                         <Row xl={6} sm={2} lg={6}
                              className={"justify-content-center align-items-center text-center g-4"}>
-                            <Col>
-                                <Button onClick={handleShow} variant="primary">
-                                    Add
-                                </Button>
-                            </Col>
                             <Col lg={1} sm={5} md={3} className={"p-2 m-1 overflow-hidden"}>
                             </Col>
                         </Row>
@@ -195,20 +174,6 @@ export function Product() {
                     </Row>
                 </Form>
             </Container>
-            <Modal show={show} onHide={handleClose}>
-                <Modal.Header closeButton>
-                    <Modal.Title>Add Photos</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                    <Form onSubmit={handleAddLink}>
-                        <Form.Group className={"mb-3"}>
-                            <Form.Control type="text" onChange={handleNewLink} placeholder="http://example.com"/>
-                        </Form.Group>
-                        <Button type={"submit"}>Add</Button>
-                    </Form>
-
-                </Modal.Body>
-            </Modal>
         </>
     )
         ;

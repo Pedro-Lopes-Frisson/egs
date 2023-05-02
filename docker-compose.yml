@@ -67,12 +67,13 @@ services:
 
   entities-kong1:
     container_name: "entities-kong1"
+    build: ./broth2/EGS/entities/
     environment:
       - "FLASK_APP=server"
       - "FLASK_ENV=production"
       - "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
     hostname: "entities"
-    image: "pedrolopes123/entities"
+    image: "pedrolopes123/egs:entities"
     networks:
       - "kong-net"
     working_dir: "/app_cont"
@@ -172,13 +173,14 @@ services:
       - "./authservice_parse_data:/bitnami/parse"
   payments:
     container_name: "payments"
+    build: ./gil/mect-egs-payments/
     environment:
       - "PATH=/usr/local/openjdk-11/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
       - "JAVA_HOME=/usr/local/openjdk-11"
       - "LANG=C.UTF-8"
       - "JAVA_VERSION=11.0.16"
     hostname: "payments"
-    image: "pedrolopes123/payments"
+    image: "pedrolopes123/egs:payments"
     ipc: "private"
     logging:
       driver: "json-file"
@@ -193,13 +195,14 @@ services:
       - "python3"
       - "app.py"
     container_name: "produtos-kong-net"
+    build: ./broth2/EGS/products/
     environment:
       - "FLASK_APP=server"
       - "FLASK_ENV=production"
       - "FLASK_DEBUG=False"
       - "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
     hostname: "prods1"
-    image: "pedrolopes123/produtos"
+    image: "pedrolopes123/egs:produtos"
     ipc: "private"
     logging:
       driver: "json-file"
@@ -239,6 +242,7 @@ services:
   sales:
     container_name: "sales"
     hostname: "sales"
+    build: ./gil/mect-egs-sales/
     environment:
       - "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
       - "SECRET_KEY=your_secret_key_here"
@@ -246,7 +250,7 @@ services:
       - "PAYMENTS_API_URL=http://payments:8081/payments"
       - "PRODUCTS_API_URL=http://prods1:8888/products/product"
       - "DATABASE_HOST=db_sales:5432"
-    image: "pedrolopes123/sales"
+    image: "pedrolopes123/egs:sales"
     networks:
       - "kong-net"
     ports:
