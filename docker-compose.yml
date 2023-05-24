@@ -28,10 +28,11 @@ services:
     entrypoint:
       - "/opt/bitnami/scripts/parse-dashboard/entrypoint.sh"
     environment:
-      - "PARSE_DASHBOARD_PARSE_HOST=parse"
+      - "PARSE_DASHBOARD_PARSE_HOST=localhost"
       - "PATH=/opt/bitnami/python/bin:/opt/bitnami/node/bin:/opt/bitnami/parse-dashboard/bin:/opt/bitnami/common/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
       - "HOME=/"
       - "BITNAMI_APP_NAME=parse-dashboard"
+      - "PARSE_DASHBOARD_PARSE_PROTOCOL=http"
     hostname: "91fd806dfc3e"
     image: "docker.io/bitnami/parse-dashboard:5"
     networks:
@@ -40,13 +41,11 @@ services:
       - "80:4040/tcp"
     user: "1001"
     volumes:
-      - './authservice_parse_dashboard_data:/bitnami'
+      - authservice_parse_dashboard_data:/bitnami
 
   gil_psql:
-    container_name: "busy_solomon"
+    container_name: "gil_psql_sales"
     hostname: "sales_db"
-    entrypoint:
-      - "docker-entrypoint.sh"
     environment:
       - "POSTGRES_USER=admin"
       - "PGDATA=/var/lib/postgresql/data/pgdata"
@@ -56,10 +55,10 @@ services:
       - "LANG=en_US.utf8"
       - "PG_MAJOR=15"
       - "PG_VERSION=15.2-1.pgdg110+1"
+      - "POSTGRES_DB=sales_api"
     expose:
-      - "5432/tcp"
+      - "5432:5433/tcp"
     image: "postgres"
-
     networks:
       - "kong-net"
     volumes:
@@ -78,60 +77,92 @@ services:
       - "kong-net"
     working_dir: "/app_cont"
     volumes:
-      - entities_db_sqlite:/app_cont/entities.db
+      - entities_db_sqlite:/app_cont/db
 
 
+  #######################################
+  # Postgres: The database used by Kong
+  #######################################
   kong-database:
-    command:
-      - "postgres"
-    container_name: "kong-database"
-    entrypoint:
-      - "docker-entrypoint.sh"
-    environment:
-      - "POSTGRES_USER=kong"
-      - "POSTGRES_DB=kong"
-      - "POSTGRES_PASSWORD=kongpass"
-      - "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/lib/postgresql/13/bin"
-      - "GOSU_VERSION=1.16"
-      - "LANG=en_US.utf8"
-      - "PG_MAJOR=13"
-      - "PG_VERSION=13.10-1.pgdg110+1"
-      - "PGDATA=/var/lib/postgresql/data"
-    hostname: "9bc11a053b60"
-    image: "postgres:13"
+    image: postgres:13
+    hostname: 'kongdb'
+    container_name: 'kongdb'
+    restart: always
     networks:
-      - 'kong-net'
+      - kong-net
+    environment:
+      POSTGRES_USER: kong
+      POSTGRES_PASSWORD: kongpass
+      POSTGRES_DB: kong
     ports:
-      - "5433:5432/tcp"
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "kong"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
     volumes:
       - kong-database-data:/var/lib/postgresql/data
 
-  kong-gateway:
-    command:
-      - "kong"
-      - "docker-start"
-    container_name: "kong-gateway"
-    entrypoint:
-      - "/entrypoint.sh"
-    environment:
-      - "KONG_PROXY_ACCESS_LOG=/dev/stdout"
-      - "KONG_ADMIN_GUI_URL=http://localhost:8002"
-      - "KONG_PROXY_ERROR_LOG=/dev/stderr"
-      - "KONG_ADMIN_ERROR_LOG=/dev/stderr"
-      - "KONG_ADMIN_LISTEN=0.0.0.0:8001"
-      - "KONG_DATABASE=postgres"
-      - "KONG_PG_HOST=kong-database"
-      - "KONG_PG_USER=kong"
-      - "KONG_PG_PASSWORD=kongpass"
-      - "KONG_ADMIN_ACCESS_LOG=/dev/stdout"
-      - "KONG_LICENSE_DATA"
-      - "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
-      - "KONG_VERSION="
-      - "KONG_PREFIX=/usr/local/kong"
-    hostname: "kong_gateway"
+  #######################################
+  # Kong database migration
+  #######################################
+  kong-migration:
     image: "kong/kong-gateway:3.2.1.0"
+    command: "kong migrations bootstrap"
+    hostname: 'kong-migation'
+    container_name: 'kong-migration'
     networks:
-      - "kong-net"
+      - kong-net
+    restart: on-failure
+    environment:
+      KONG_PG_HOST: kongdb
+      KONG_DATABASE: postgres
+      KONG_PG_USER: kong
+      KONG_PG_PASSWORD: kongpass
+    links:
+      - kong-database
+    depends_on:
+      kong-database:
+        condition: service_healthy
+
+
+  #######################################
+  # Kong: The API Gateway
+  #######################################
+  kong:
+    image: "kong/kong-gateway:3.2.1.0"
+    restart: always
+    networks:
+      - kong-net
+    hostname: 'kong'
+    container_name: 'kong'
+    environment:
+      KONG_PG_HOST: kongdb
+      KONG_PROXY_LISTEN: 0.0.0.0:8000
+      KONG_PROXY_LISTEN_SSL: 0.0.0.0:8443
+      KONG_PROXY_ACCESS_LOG: /dev/stdout
+      KONG_ADMIN_GUI_URL: http://0.0.0.0:8002
+      KONG_PROXY_ERROR_LOG: /dev/stderr
+      KONG_ADMIN_ERROR_LOG: /dev/stderr
+      KONG_ADMIN_LISTEN: 0.0.0.0:8001
+      KONG_DATABASE: postgres
+      KONG_PG_USER: kong
+      KONG_PG_PASSWORD: kongpass
+      KONG_ADMIN_ACCESS_LOG: /dev/stdout
+      PATH: /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+      KONG_VERSION: 
+      KONG_PREFIX: /usr/local/kong
+    depends_on:
+      kong-migration:
+        condition: service_completed_successfully
+      kong-database:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://kong:8001"]
+      interval: 5s
+      timeout: 2s
+      retries: 15
     ports:
       - "8000:8000/tcp"
       - "8001:8001/tcp"
@@ -170,7 +201,7 @@ services:
       - "1337:1337/tcp"
     user: "1001"
     volumes:
-      - "./authservice_parse_data:/bitnami/parse"
+      - authservice_parse_data:/bitnami/parse
   payments:
     container_name: "payments"
     build: ./gil/mect-egs-payments/
@@ -211,7 +242,7 @@ services:
       - "kong-net"
     working_dir: "/app_cont"
     volumes:
-      - produtos_db_sqlite:/app_cont/products.db
+      - produtos_db_sqlite:/app_cont/db
 
   redis_db:
     command:
@@ -243,18 +274,36 @@ services:
     container_name: "sales"
     hostname: "sales"
     build: ./gil/mect-egs-sales/
+    command: python /opt/app/manage.py runserver 0.0.0.0:8000
     environment:
       - "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
       - "SECRET_KEY=your_secret_key_here"
       - "DEBUG=True"
       - "PAYMENTS_API_URL=http://payments:8081/payments"
       - "PRODUCTS_API_URL=http://prods1:8888/products/product"
-      - "DATABASE_HOST=db_sales:5432"
+      - "DATABASE_HOST=sales_db:5432"
     image: "pedrolopes123/egs:sales"
+    depends_on:
+      - gil_psql
     networks:
       - "kong-net"
     ports:
       - "4000:8000/tcp"
+    working_dir: "/app_cont"
+
+  authservice:
+    container_name: "authservice"
+    build: ./authservice-readable/
+    environment:
+      - "FLASK_APP=server"
+      - "FLASK_ENV=production"
+      - "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+    hostname: "authservice"
+    image: "pedrolopes123/egs:authservice"
+    networks:
+      - "kong-net"
+    ports:
+      - "5000:5000/tcp"
     working_dir: "/app_cont"
 
 networks:
@@ -266,13 +315,13 @@ networks:
 
 volumes:
   kong-database-data:
-    name: kong-database-data
+    name: kong-db-data
 
   authservice_mongodb_data:
     name: authservice_mongodb_data
 
   sales_data:
-    name: authservice_mongodb_data
+    name: sales_data
 
   redis_authservice:
     name: redis_authservice
@@ -282,4 +331,7 @@ volumes:
 
   entities_db_sqlite:
     name: entities_db_sqlite
-
+  authservice_parse_dashboard_data:
+    name: authservice_parse_dashboard_data
+  authservice_parse_data:
+    name: authservice_parse_data
