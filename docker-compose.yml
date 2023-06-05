@@ -72,7 +72,7 @@ services:
       - "FLASK_ENV=production"
       - "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
     hostname: "entities"
-    image: "pedrolopes123/egs:entities"
+    image: "registry.deti:5000/mar_ket/entities:v1"
     networks:
       - "kong-net"
     working_dir: "/app_cont"
@@ -211,7 +211,7 @@ services:
       - "LANG=C.UTF-8"
       - "JAVA_VERSION=11.0.16"
     hostname: "payments"
-    image: "pedrolopes123/egs:payments"
+    image: "registry.deti:5000/mar_ket/payments:v1"
     ipc: "private"
     logging:
       driver: "json-file"
@@ -233,7 +233,7 @@ services:
       - "FLASK_DEBUG=False"
       - "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
     hostname: "prods1"
-    image: "pedrolopes123/egs:produtos"
+    image: "registry.deti:5000/mar_ket/produtos:v1"
     ipc: "private"
     logging:
       driver: "json-file"
@@ -282,7 +282,7 @@ services:
       - "PAYMENTS_API_URL=http://payments:8081/payments"
       - "PRODUCTS_API_URL=http://prods1:8888/products/product"
       - "DATABASE_HOST=sales_db:5432"
-    image: "pedrolopes123/egs:sales"
+    image: "registry.deti:5000/mar_ket/sales:v1"
     depends_on:
       - gil_psql
     networks:
@@ -299,11 +299,11 @@ services:
       - "FLASK_ENV=production"
       - "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
     hostname: "authservice"
-    image: "pedrolopes123/egs:authservice"
+    image: "registry.deti:5000/mar_ket/authservice:v1"
     networks:
       - "kong-net"
     ports:
-      - "5000:5000/tcp"
+      - "5000:5001/tcp"
     working_dir: "/app_cont"
 
 networks:
