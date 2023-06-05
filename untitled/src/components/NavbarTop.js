@@ -32,12 +32,16 @@ export function NavBarTop() {
     useEffect(() => {
         // This function will be called whenever the component mounts or
         // when a value in the dependency array (second argument) changes.
-        const itemsInCart = JSON.parse(localStorage.getItem('cart') ?? '[]').length;
+        const itemsInCart = "cart" in localStorage ? JSON.parse(localStorage.getItem('cart')).length : 0;
+        const username =  "username" in localStorage ? localStorage.getItem("username") : "Username Placeholder" ;
+        setUsername(username);
+
+
         setCartItems(itemsInCart);
         const handleLoginStatusChange = (event) => {
             console.log(event);
-            const itemsInCart = JSON.parse(localStorage.getItem('cart') ?? '[]').length;
-            const username = localStorage.getItem("username") ?? "Username Placeholder";
+            const itemsInCart = "cart" in localStorage ? JSON.parse(localStorage.getItem('cart')).length : 0;
+        const username =  "username" in localStorage ? localStorage.getItem("username") : "Username Placeholder" ;
             setCartItems(itemsInCart);
             setUsername(username);
         };
