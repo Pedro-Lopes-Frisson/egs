@@ -5,6 +5,6 @@ export function  FailedPage () {
 
     return (
         <div>
-            Failed
+            The payment was denied
         </div>)
 }
