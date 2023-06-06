@@ -16,6 +16,9 @@ import Protected from "./components/Protected";
 import axios from "axios";
 import {SuccessPage} from "./pages/SuccessPage";
 import {FailedPage} from "./pages/FailedPage";
+import Ads from "./pages/Ads";
+import CreateAd from './pages/CreateAd';
+import DisplayAds from './pages/DisplayAds';
 
 function App() {
     const navigate = useNavigate();
@@ -32,23 +35,29 @@ function App() {
 
     return (<>
         <NavBarTop/>
-        <Routes>
-            <Route path="/" element={<Home/>}></Route>
-            <Route path="/login" element={<Login/>}></Route>
-            <Route path="/register" element={<Signup/>}></Route>
-            <Route path="/products" element={<Products/>}></Route>
-            <Route path="/products/:id" element={<Product/>}></Route>
-            <Route path="/products/new" element={<NewProduct/>}></Route>
-            <Route path="/account" element={<Account/>}></Route>
-            <Route path="/cart" element={<Cart/>}></Route>
-            <Route path="/successPage" element={<SuccessPage/>}></Route>
-            <Route path="/failedPage" element={<FailedPage/>}></Route>
-            <Route path={"/productadmin/:id"} element={<Protected isLoggedIn={isAdmin}>
-                <ProductAdmin/>
-            </Protected>}>
-            </Route>
-            <Route path="*" element={<NotFound/>}></Route>
-        </Routes>
+        <div className="app-container"> 
+            
+            <Routes>
+                <Route path="/" element={<Home/>}></Route>
+                <Route path="/login" element={<Login/>}></Route>
+                <Route path="/register" element={<Signup/>}></Route>
+                <Route path="/products" element={<Products/>}></Route>
+                <Route path="/products/:id" element={<Product/>}></Route>
+                <Route path="/products/new" element={<NewProduct/>}></Route>
+                <Route path="/account" element={<Account/>}></Route>
+                <Route path="/cart" element={<Cart/>}></Route>
+                <Route path="/successPage" element={<SuccessPage/>}></Route>
+                <Route path="/createAd" element={<CreateAd/>}></Route>
+                <Route path="/allAds" element={<DisplayAds/>}></Route>
+                <Route path="/failedPage" element={<FailedPage/>}></Route>
+                <Route path={"/productadmin/:id"} element={<Protected isLoggedIn={isAdmin}>
+                    <ProductAdmin/>
+                </Protected>}>
+                </Route>
+                <Route path="*" element={<NotFound/>}></Route>
+            </Routes>
+            <Ads />
+        </div>
     </>);
 }
 

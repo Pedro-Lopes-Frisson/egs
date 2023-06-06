@@ -8,6 +8,7 @@ import authservice, {AuthService} from '../services/authservice'
 import {Badge} from "react-bootstrap";
 import {useEffect, useState} from "react";
 
+
 const AUTH_API = 'http://localhost:5000';
 const ENTITIES_API = 'http://localhost:8000/entities';
 
@@ -31,12 +32,16 @@ export function NavBarTop() {
     useEffect(() => {
         // This function will be called whenever the component mounts or
         // when a value in the dependency array (second argument) changes.
-        const itemsInCart = JSON.parse(localStorage.getItem('cart') ?? '[]').length;
+        const itemsInCart = "cart" in localStorage ? JSON.parse(localStorage.getItem('cart')).length : 0;
+        const username =  "username" in localStorage ? localStorage.getItem("username") : "Username Placeholder" ;
+        setUsername(username);
+
+
         setCartItems(itemsInCart);
         const handleLoginStatusChange = (event) => {
             console.log(event);
-            const itemsInCart = JSON.parse(localStorage.getItem('cart') ?? '[]').length;
-            const username = localStorage.getItem("username") ?? "Username Placeholder";
+            const itemsInCart = "cart" in localStorage ? JSON.parse(localStorage.getItem('cart')).length : 0;
+        const username =  "username" in localStorage ? localStorage.getItem("username") : "Username Placeholder" ;
             setCartItems(itemsInCart);
             setUsername(username);
         };
@@ -61,6 +66,15 @@ export function NavBarTop() {
                         <LinkContainer to="/Products">
                             <Nav.Link>Products</Nav.Link>
                         </LinkContainer>
+                        <NavDropdown title="Ads" id="basic-nav-dropdown">
+                            <LinkContainer to="/createAd">
+                                <NavDropdown.Item>Create Ad</NavDropdown.Item>
+                            </LinkContainer>
+                            <LinkContainer to="/allAds">
+                                <NavDropdown.Item>Show Ads</NavDropdown.Item>
+                            </LinkContainer>
+                        </NavDropdown>
+                        
                         {!hasUser() &&
                             <Container className={"d-inline-flex justify-content-end"}>
                                 <LinkContainer to="/Login">
@@ -74,6 +88,7 @@ export function NavBarTop() {
                         }
                         {hasUser() &&
                             <Container className={"d-inline-flex justify-content-end"}>
+                                
                                 <LinkContainer to="/Account">
                                     <Nav.Link><i className={"bi bi-person-square"}/>{ username1 }</Nav.Link>
                                 </LinkContainer>
@@ -86,6 +101,7 @@ export function NavBarTop() {
                                 </LinkContainer>
                             </Container>
                         }
+                        
                     </Nav>
                 </Navbar.Collapse>
             </Container>

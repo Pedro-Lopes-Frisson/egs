@@ -88,7 +88,7 @@ export function Product() {
         event.stopPropagation();
         event.preventDefault()
         const button = event.target.closest('button');
-        let idList = JSON.parse(localStorage.getItem("cart")) ?? [];
+        let idList = "cart" in localStorage ? JSON.parse(localStorage.getItem("cart")) : [];
 
         idList.map((p) => p.id).includes(button.dataset["mkId"]) === false ? idList.push({
             id: button.dataset["mkId"],
